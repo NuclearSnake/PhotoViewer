@@ -244,4 +244,13 @@ public class ViewerActivity extends AppCompatActivity {
             return null;
         }
     }
+
+    // Reads an InputStream and converts it to a String.
+    public String readStreamToString(InputStream stream) throws IOException {
+        if(stream == null)
+            return null;
+        BufferedReader reader = new BufferedReader(new InputStreamReader(stream, "UTF-8"));
+        return reader.readLine();
+    }
+
 }
