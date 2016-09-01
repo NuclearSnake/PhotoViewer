@@ -1,6 +1,7 @@
 package com.neoproductionco.photoviewer;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.ConnectivityManager;
@@ -10,6 +11,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ImageView;
@@ -24,6 +26,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.Serializable;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
@@ -32,7 +35,6 @@ public class ViewerActivity extends AppCompatActivity {
 
     final String DEBUG_TAG = "PhotoViewer_Logs";
     int current_page = 1;
-    //int current_photo = 0;
 
     TextView tvPage;
     Button btnPrev;
@@ -53,6 +55,16 @@ public class ViewerActivity extends AppCompatActivity {
         gvList = (GridView) findViewById(R.id.gvList);
         adapter = new GridViewAdapter(this, R.layout.image_box, photos);
         gvList.setAdapter(adapter);
+        gvList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View v,
+                                    int position, long id) {
+                Intent intent = new Intent(ViewerActivity.this, FullscreenActivity.class);
+                intent.putExtra("selected", position);
+                intent.putExtra("photos", photos);
+                startActivity(intent);
+            }
+        });
 
         reloadPage();
 
