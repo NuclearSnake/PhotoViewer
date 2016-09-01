@@ -244,18 +244,4 @@ public class ViewerActivity extends AppCompatActivity {
             return null;
         }
     }
-
-    // Reads an InputStream and converts it to a String.
-    public String readStreamToString(InputStream stream) throws IOException {
-        if(stream == null)
-            return null;
-        BufferedReader reader = new BufferedReader(new InputStreamReader(stream, "UTF-8"));
-        return reader.readLine();
-    }
-
-    // Reads an InputStream and converts it to a Bitmap.
-    public Bitmap readStreamToBitmap(InputStream stream) throws IOException {
-        return BitmapFactory.decodeStream(stream);
-    }
-
 }
