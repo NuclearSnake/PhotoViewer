@@ -21,6 +21,7 @@ import java.net.URL;
 
 public class ViewerActivity extends AppCompatActivity {
 
+    final String DEBUG_TAG = "PhotoViewer_Logs";
     final String page1 = "https://api.500px.com/v1/photos?feature=popular&consumer_key=wB4ozJxTijCwNuggJvPGtBGCRqaZVcF6jsrzUadF&page=2";
     TextView tvText;
     Button btnDownload;
