@@ -85,8 +85,10 @@ public class ViewerActivity extends AppCompatActivity {
         // onPostExecute displays the results of the AsyncTask.
         @Override
         protected void onPostExecute(String result) {
-            if(result == null)
+            if(result == null) {
                 tvText.setText("Unable to retrieve web page. URL may be invalid.");
+                return;
+            }
 
             try {
                 tvText.setText(getImageData(result, current_photo++).getString("name"));
@@ -144,53 +146,12 @@ public class ViewerActivity extends AppCompatActivity {
     public String readStreamToString(InputStream stream, int len) throws IOException {
         if(stream == null)
             return null;
-        StringBuilder sb = new StringBuilder();
-        String line;
-        try {
-            BufferedReader reader = new BufferedReader(new InputStreamReader(stream, "UTF-8"));
-            while((line = reader.readLine()) != null)
-                sb.append(line);
-        } finally {
-            stream.close();
-        }
-
-        return sb.toString();
-
-//        Reader reader = null;
-//        reader = new InputStreamReader(stream, "UTF-8");
-//        char[] buffer = new char[len];
-//        reader.read(buffer);
-//        return new String(buffer);
+        BufferedReader reader = new BufferedReader(new InputStreamReader(stream, "UTF-8"));
+        return reader.readLine();
     }
 
     // Reads an InputStream and converts it to a Bitmap.
-    public Bitmap readStreamToBitmap(InputStream stream, int len) throws IOException {
+    public Bitmap readStreamToBitmap(InputStream stream) throws IOException {
         return BitmapFactory.decodeStream(stream);
     }
-
-    public static String convertStreamToString(InputStream is) throws IOException {
-          /*
-           * To convert the InputStream to String we use the BufferedReader.readLine()
-           * method. We iterate until the BufferedReader return null which means
-           * there's no more data to read. Each line will appended to a StringBuilder
-           * and returned as String.
-           */
-        if (is != null) {
-            StringBuilder sb = new StringBuilder();
-            String line;
-
-            try {
-                BufferedReader reader = new BufferedReader(new InputStreamReader(is, "UTF-8"));
-                while ((line = reader.readLine()) != null) {
-                    sb.append(line);
-                }
-            } finally {
-                is.close();
-            }
-            return sb.toString();
-        } else {
-            return "";
-        }
-    }
-
 }
