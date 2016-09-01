@@ -1,6 +1,8 @@
 package com.neoproductionco.photoviewer;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
@@ -11,6 +13,11 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -23,6 +30,7 @@ public class ViewerActivity extends AppCompatActivity {
 
     final String DEBUG_TAG = "PhotoViewer_Logs";
     final String page1 = "https://api.500px.com/v1/photos?feature=popular&consumer_key=wB4ozJxTijCwNuggJvPGtBGCRqaZVcF6jsrzUadF&page=2";
+    int current_photo = 0;
     TextView tvText;
     Button btnDownload;
 
@@ -71,24 +79,40 @@ public class ViewerActivity extends AppCompatActivity {
             try {
                 return downloadUrl(urls[0]);
             } catch (IOException e) {
-                return "Unable to retrieve web page. URL may be invalid.";
+                return null;
             }
         }
         // onPostExecute displays the results of the AsyncTask.
         @Override
         protected void onPostExecute(String result) {
-            tvText.setText(result);
+            if(result == null)
+                tvText.setText("Unable to retrieve web page. URL may be invalid.");
+
+            try {
+                tvText.setText(getImageData(result, current_photo++).getString("name"));
+            } catch (JSONException e) {
+                e.printStackTrace();
+                tvText.setText("Unable to retrieve web page. URL may be invalid.");
+            }
+        }
+
+        public JSONObject getImageData(String response, int number) throws JSONException {
+            JSONObject current_page = new JSONObject(response);
+            JSONArray photos = current_page.getJSONArray("photos");
+            if(number >= 0 && number<photos.length())
+                return photos.getJSONObject(number);
+            return null;
         }
     }
 
     // Given a URL, establishes an HttpUrlConnection and retrieves
-// the web page content as a InputStream, which it returns as
-// a string.
+    // the web page content as a InputStream, which it returns as
+    // a string.
     private String downloadUrl(String myurl) throws IOException {
         InputStream is = null;
-        // Only display the first 500 characters of the retrieved
+        // Only display the first 3000 characters of the retrieved
         // web page content.
-        int len = 500;
+        int len = 3000;
 
         try {
             URL url = new URL(myurl);
@@ -104,8 +128,8 @@ public class ViewerActivity extends AppCompatActivity {
             is = conn.getInputStream();
 
             // Convert the InputStream into a string
-            String contentAsString = readIt(is, len);
-            return contentAsString;
+
+            return readStreamToString(is, len);
 
             // Makes sure that the InputStream is closed after the app is
             // finished using it.
@@ -117,11 +141,56 @@ public class ViewerActivity extends AppCompatActivity {
     }
 
     // Reads an InputStream and converts it to a String.
-    public String readIt(InputStream stream, int len) throws IOException, UnsupportedEncodingException {
-        Reader reader = null;
-        reader = new InputStreamReader(stream, "UTF-8");
-        char[] buffer = new char[len];
-        reader.read(buffer);
-        return new String(buffer);
+    public String readStreamToString(InputStream stream, int len) throws IOException {
+        if(stream == null)
+            return null;
+        StringBuilder sb = new StringBuilder();
+        String line;
+        try {
+            BufferedReader reader = new BufferedReader(new InputStreamReader(stream, "UTF-8"));
+            while((line = reader.readLine()) != null)
+                sb.append(line);
+        } finally {
+            stream.close();
+        }
+
+        return sb.toString();
+
+//        Reader reader = null;
+//        reader = new InputStreamReader(stream, "UTF-8");
+//        char[] buffer = new char[len];
+//        reader.read(buffer);
+//        return new String(buffer);
     }
+
+    // Reads an InputStream and converts it to a Bitmap.
+    public Bitmap readStreamToBitmap(InputStream stream, int len) throws IOException {
+        return BitmapFactory.decodeStream(stream);
+    }
+
+    public static String convertStreamToString(InputStream is) throws IOException {
+          /*
+           * To convert the InputStream to String we use the BufferedReader.readLine()
+           * method. We iterate until the BufferedReader return null which means
+           * there's no more data to read. Each line will appended to a StringBuilder
+           * and returned as String.
+           */
+        if (is != null) {
+            StringBuilder sb = new StringBuilder();
+            String line;
+
+            try {
+                BufferedReader reader = new BufferedReader(new InputStreamReader(is, "UTF-8"));
+                while ((line = reader.readLine()) != null) {
+                    sb.append(line);
+                }
+            } finally {
+                is.close();
+            }
+            return sb.toString();
+        } else {
+            return "";
+        }
+    }
+
 }
