@@ -48,13 +48,12 @@ public class ViewerActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_grid_viewer);
         tvPage = (TextView) findViewById(R.id.tvPage);
         btnPrev = (Button) findViewById(R.id.btnPrev);
         btnNext = (Button) findViewById(R.id.btnNext);
         gvList = (GridView) findViewById(R.id.gvList);
-        adapter = new GridViewAdapter(this, R.layout.image_box, photos);
-        gvList.setAdapter(adapter);
         gvList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View v,
@@ -65,8 +64,6 @@ public class ViewerActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
-
-        reloadPage();
 
         btnPrev.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -82,7 +79,7 @@ public class ViewerActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 try {
-                    if(current_page >= page.getInt("total_pages")-1)
+                    if (current_page >= page.getInt("total_pages") - 1)
                         return;
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -91,6 +88,28 @@ public class ViewerActivity extends AppCompatActivity {
                 reloadPage();
             }
         });
+
+        if(savedInstanceState != null) {
+            photos = (ArrayList<ImageItem>) savedInstanceState.getSerializable("photos");
+            try {
+                page = new JSONObject(savedInstanceState.getString("page"));
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        } else
+            reloadPage();
+
+        adapter = new GridViewAdapter(this, R.layout.image_box, photos);
+        gvList.setAdapter(adapter);
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+        savedInstanceState.putSerializable("photos", photos);
+        savedInstanceState.putString("page", page.toString());
+
+        // Always call the superclass so it can save the view hierarchy state
+        super.onSaveInstanceState(savedInstanceState);
     }
 
     private void reloadPage(){
