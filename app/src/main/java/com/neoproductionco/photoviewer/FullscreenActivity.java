@@ -39,6 +39,8 @@ public class FullscreenActivity extends Activity {
         btnPrevPhoto.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if(current_photo <= 0)
+                    return;
                 current_photo--;
                 refresh();
             }
@@ -46,6 +48,8 @@ public class FullscreenActivity extends Activity {
         btnNextPhoto.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if(current_photo >= photos.size()-1)
+                    return;
                 current_photo++;
                 refresh();
             }

@@ -71,6 +71,8 @@ public class ViewerActivity extends AppCompatActivity {
         btnPrev.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if(current_page <= 1)
+                    return;
                 current_page--;
                 reloadPage();
             }
@@ -79,6 +81,12 @@ public class ViewerActivity extends AppCompatActivity {
         btnNext.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                try {
+                    if(current_page >= page.getInt("total_pages")-1)
+                        return;
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
                 current_page++;
                 reloadPage();
             }
